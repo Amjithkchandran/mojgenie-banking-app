@@ -27,3 +27,21 @@ form{
 {
     float: left;
 }
+.transfer_table
+{
+    margin: 100px 0px  100px 0px;
+    margin-left: 240px;
+    width: 600px;
+    height: 250px;
+    border: 1px solid black;
+    box-shadow: 1px black;
+}
+.statement_table{
+    /* margin: 100px 0px  100px 0px; */
+    margin-top: 50px;
+    margin-left: 100px;
+    width: 800px;
+    height: 700px;
+    border: 1px solid black;
+    box-shadow: 1px black;
+}

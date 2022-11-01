@@ -43,7 +43,7 @@ class SignupController extends Controller
         $users->email = request('email');
         $users->password = Hash::make(request('password'));
         $users->save();
-        return back();
+        return redirect('/login');
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Home;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,9 +18,17 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $user = User::where('id',Auth::user()->id)->first();
-        $balance = Transaction::where('user_id',$user->id)->latest('created_at')->first();
-        return view('body.home',compact('user','balance'));
+        $user = User::where('id', Auth::user()->id)->first();
+        $bal = Transaction::where('user_id', $user->id);
+        if (Transaction::where('user_id',$user->id)->count()) {
+            $balance = (clone $bal)->latest('created_at')->first();
+            $balance = number_format((float) $balance->balance, 2, '.', '');
+        } else {
+            $balance = 0;
+        }
+
+        $transactions = (clone $bal)->get();
+        return view('body.home', compact('user', 'balance','transactions'));
     }
 
     /**
@@ -45,11 +54,10 @@ class HomeController extends Controller
         $transaction->user_id = Auth::user()->id;
         $transaction->transaction_type = Transaction::DEPOSITE;
         $transaction->amount = request('amount');
-        $balance = Transaction::where('user_id',Auth::user()->id);
-        if($balance->count() > 1 )
-        {
-            $transaction->balance = $balance->latest('created_at')->balance + request('amount');
-        }else{
+        $balance = Transaction::where('user_id', Auth::user()->id)->latest('created_at');
+        if ($balance->count() > 1) {
+            $transaction->balance = $balance->first()->balance + request('amount');
+        } else {
             $transaction->balance = request('amount');
         }
         $transaction->save();
@@ -103,6 +111,40 @@ class HomeController extends Controller
     }
     public function withdrawMoney()
     {
-        dd(request()->all());
+        $withdraw = new Transaction;
+        $withdraw->user_id = Auth::user()->id;
+        $withdraw->transaction_type = Transaction::WITHDRAW;
+        $withdraw->amount = request('w_amount');
+        $balance = Transaction::where('user_id', Auth::user()->id)->latest('created_at');
+        if ($balance->count() > 0) {
+            $withdraw->balance = $balance->first()->balance - request('w_amount');
+        } else {
+            return back();
+        }
+        $withdraw->save();
+
+        return back();
+    }
+
+    public function transferMoney()
+    {
+        $user = User::where('email', request('email_id'))->first();
+        if ($user) {
+            $transaction = new Transaction;
+            $transaction->user_id = $user->id;
+            $transaction->transaction_type = Transaction::TRANSFER;
+            $transaction->details = request('email_id');
+            $transaction->amount = request('T_amount');
+            $balance = Transaction::where('user_id', $user->id)->latest('created_at');
+            if ($balance->count() > 1) {
+                $transaction->balance = $balance->first()->balance + request('T_amount');
+            } else {
+                $transaction->balance = request('T_amount');
+            }
+            $transaction->save();
+            return back();
+        } else {
+            return back();
+        }
     }
 }
