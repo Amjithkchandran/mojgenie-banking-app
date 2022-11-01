@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Auth\Login;
+namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
+use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Validator;
 
-class LoginController extends Controller
+class HomeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,7 +17,9 @@ class LoginController extends Controller
      */
     public function index()
     {
-        return view('auth.login');
+        $user = User::where('id',Auth::user()->id)->first();
+        $balance = Transaction::where('user_id',$user->id)->latest('created_at')->first();
+        return view('body.home',compact('user','balance'));
     }
 
     /**
@@ -37,7 +40,21 @@ class LoginController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // dd(request()->all(),auth()->id);
+        $transaction = new Transaction;
+        $transaction->user_id = Auth::user()->id;
+        $transaction->transaction_type = Transaction::DEPOSITE;
+        $transaction->amount = request('amount');
+        $balance = Transaction::where('user_id',Auth::user()->id);
+        if($balance->count() > 1 )
+        {
+            $transaction->balance = $balance->latest('created_at')->balance + request('amount');
+        }else{
+            $transaction->balance = request('amount');
+        }
+        $transaction->save();
+
+        return back();
     }
 
     /**
@@ -84,26 +101,8 @@ class LoginController extends Controller
     {
         //
     }
-
-    public function userLogin()
+    public function withdrawMoney()
     {
-        $validate = Validator::make(request()->all(),[               //validating email and password
-            'email' => 'required',
-            'password' => 'required'
-        ]);
-
-        if($validate->fails())
-        {
-            return redirect()->to('login')->withErrors($validate)->withInput(Input::except('password'));
-        }
-
-        $credentials =  request()->only('email','password');
-        if(Auth::attempt($credentials)){
-            return redirect()->intended('home')
-                            ->withSuccess('Signed in');
-        }
-
-        return redirect('login')->withSuccess('Login details are not valid');
-
+        dd(request()->all());
     }
 }

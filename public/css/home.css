@@ -1,0 +1,29 @@
+.home_page{
+    margin-top: 5%;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+.nav-link{
+    width: 16%;
+}
+.home-table
+{
+    margin: 100px 0px  100px 0px;
+    margin-left: 240px;
+    width: 600px;
+    height: 200px;
+    border: 1px solid black;
+    box-shadow: 1px black;
+}
+.data-align{
+    margin-top: 5px;
+    margin-left: 5px;
+}
+form{
+    text-align: center;
+    margin-top: 5px;
+}
+.label
+{
+    float: left;
+}

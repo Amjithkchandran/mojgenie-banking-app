@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Route;
 
@@ -18,9 +18,14 @@ Route::get('/', function () {
     return view('auth.login');
 });
 //login
-Route::get('/login',[Login\LoginController::class,'index'])->name('sign-up');
-Route::post('user-login',[Login\LoginController::class,'userLogin'])->name('user-login');
+Route::get('/login',[Auth\Login\LoginController::class,'index'])->name('sign-up');
+Route::post('user-login',[Auth\Login\LoginController::class,'userLogin'])->name('user-login');
 
 //sign-up
-Route::get('/sign-up',[SignUp\SignupController::class,'index'])->name('sign-up');
-Route::post('/store-sign-up',[SignUp\SignupController::class,'store'])->name('store-user');
+Route::get('/sign-up',[Auth\SignUp\SignupController::class,'index'])->name('sign-up');
+Route::post('/store-sign-up',[Auth\SignUp\SignupController::class,'store'])->name('store-user');
+
+//home
+Route::get('home',[Home\HomeController::class,'index'])->name('home.index');
+Route::post('/deposite-money',[Home\HomeController::class,'store']);
+Route::post('/withdraw-money',[Home\HomeController::class,'withdrawMoney']);
